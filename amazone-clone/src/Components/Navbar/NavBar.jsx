@@ -2,6 +2,7 @@ import React from 'react'
 import { SlLocationPin } from "react-icons/sl";
 import { BsSearch } from "react-icons/bs";
 import { BiCart } from "react-icons/bi";
+import { Link } from 'react-router-dom';
 
 
 // import {SlLocationPin} from 'react-icons/sl'
@@ -20,7 +21,7 @@ function NavBar() {
 
             <div className={classes.logo__container}>
                 {/* logo */}
-                <a href="/"><img src="https://www.pngall.com/wp-content/uploads/15/Amazon-Logo-White-Transparent.png" alt="" /></a>
+                <Link to="/"><img src="https://www.pngall.com/wp-content/uploads/15/Amazon-Logo-White-Transparent.png" alt="" /></Link>
                 {/* delivery */}
                 <div className={classes.delivery}>
                 <span>
@@ -48,31 +49,31 @@ function NavBar() {
             {/* right side */}
             <div className={classes.order__container}>
                 
-                    <a href="" className={classes.language}>
+                    <Link to="/" className={classes.language}>
                     <img src="https://upload.wikimedia.org/wikipedia/en/thumb/a/a4/Flag_of_the_United_States.svg/1024px-Flag_of_the_United_States.svg.png" alt="" />
                     <select name="" id="flag">
                         <option value="">EN</option>
                     </select>
-                    </a>
+                    </Link>
                 
                 {/*  */}
-                <a href="/">
+                <Link to="/auth">
                     <div>
                         <p>Hello, Sign in</p>
                         <span>Account & Lists</span>
                     </div>
-                </a>
+                </Link>
                 {/* order */}
-                <a href="">
+                <Link to="/orders">
                     <p>Returns</p>
                     <span>& Orders</span>
-                </a>
+                </Link>
                 {/* cart */}
-                <a href="/cart" className={classes.cart}>
+                <Link to="/cart" className={classes.cart}>
                 {/* icon */}
                 <BiCart size={35} />
                 <span>0</span>
-                </a>
+                </Link>
 
 
 

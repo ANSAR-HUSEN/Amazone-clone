@@ -144,6 +144,10 @@
     .language {
         display: none;
     }
+    footer{
+        display: flex;
+        flex-direction: column !important;
+    }
 
 }
     
