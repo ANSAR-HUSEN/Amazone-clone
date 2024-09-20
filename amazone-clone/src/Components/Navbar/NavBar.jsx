@@ -5,17 +5,22 @@ import { BiCart } from "react-icons/bi";
 import { Link } from 'react-router-dom';
 
 
-// import {SlLocationPin} from 'react-icons/sl'
-import PinDropOutlinedIcon from '@mui/icons-material/PinDropOutlined';
-import ArrowDropDownOutlinedIcon from '@mui/icons-material/ArrowDropDownOutlined';
-import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
-import cart from '../../assets/cart.png'
+
 import classes from './NavBar.module.css'
 import LowerNav from './LowerNav';
+import { useContext } from 'react';
+import { DataContext } from '../DataProvider/DataProvider';
+
 
 function NavBar() {
+
+   const [{basket},dispatch] =useContext(DataContext)
+   console.log(basket.length);
+   const totalItem = basket.reduce((amount,item) => {
+    return item.amount + amount
+   },0)
   return (
-   <>
+   <section className={classes.fixed}>
      <section>
         <div className={classes.header__container}>
 
@@ -41,7 +46,7 @@ function NavBar() {
                 <select name="" id="">
                     <option value="">All</option>
                 </select>
-                <input type="text" placeholder='Search Amazone'/>
+                <input type="text" placeholder='Search Amazon'/>
                 {/* search icon */}
                 < BsSearch/>
                 
@@ -72,7 +77,7 @@ function NavBar() {
                 <Link to="/cart" className={classes.cart}>
                 {/* icon */}
                 <BiCart size={35} />
-                <span>0</span>
+                <span>{totalItem}</span>
                 </Link>
 
 
@@ -84,7 +89,7 @@ function NavBar() {
         </div>
     </section>
     <LowerNav/>
-   </>
+   </section>
     
 //    <div className='nav'>
 //      <div className='outer-left-nav'>
