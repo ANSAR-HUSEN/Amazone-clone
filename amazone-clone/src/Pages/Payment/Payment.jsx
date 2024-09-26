@@ -3,13 +3,19 @@ import classes from "./Payment.module.css";
 import LayOut from "../../Components/LayOut/LayOut";
 import { DataContext } from "../../Components/DataProvider/DataProvider";
 import ProductCard from "../../Components/Product/ProductCard";
-import {useStripe, useElements, CardElement} from '@stripe/react-stripe-js';
+import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 import CurrencyFormat from "../../Components/CurrencyFormat/CurrencyFormat";
-import axios from '../../Api/axios'
+import { instance } from "../../Api/axios";
+import { ClipLoader } from "react-spinners";
+import { db } from "../../Utility/firebase";
+import { useNavigate } from "react-router-dom";
+import { Type } from "../../Utility/action.type";
 
 function Payment() {
-  const [{ basket, user }] = useContext(DataContext);
-  const [cardError, setcardError] = useState(null)
+  const [{ basket, user },dispatch] = useContext(DataContext);
+  const [cardError, setcardError] = useState(null);
+  const [Processing, setProcessing] = useState(false);
+  const navigate = useNavigate()
   const totalItem = basket?.reduce((amount, item) => {
     return item.amount + amount;
   }, 0);
@@ -18,45 +24,55 @@ function Payment() {
   }, 0);
 
   const stripe = useStripe();
-  const elements = useElements();
+  const element = useElements();
 
-  const handlechange= (e)=>{
-e?.error?.message ? setcardError(e?.error?.message):setcardError("")
-  }
+  const handlechange = (e) => {
+    e?.error?.message ? setcardError(e?.error?.message) : setcardError("");
+  };
 
-  const handlePayment = async(e)=>{
+  const handlePayment = async (e) => {
     e.preventDefault();
 
     try {
       // backend ...contact to client secret
-      const response = await axios({
-
-        method:"POST",
-        url : `/payment/create?total=${total*100}`,
-      });
+      // const response = await axios({
+      //   method: "POST",
+      //   url: `/payment/create?total=${total * 100}`,
+      // });
+      setProcessing(true);
+      const response = await instance.post(
+        `/payment/create?total=${total * 100}`
+      );
       console.log(response.data);
       const clientSecret = response.data?.clientSecret;
       // react side confirmation
-      const confirmation = await stripe.confirmCardPayment(
-        clientSecret,
-        {
-          payment_method:{
-            card:elements.getElement(CardElement),
-          },
-        }
-      );
-      console.log(confirmation);
-      
-      
+      const { paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: element.getElement(CardElement),
+        },
+      });
+      console.log(paymentIntent);
 
+      await db
+        .collection("users")
+        .doc(user.uid)
+        .collection("orders")
+        .doc(paymentIntent.id)
+        .set({
+          basket: basket,
+          amount: paymentIntent.amount,
+          created: paymentIntent.created,
+        });
+        // empty basket
+        dispatch({type:Type.EMPTY_BASKET,})
 
-      
+      setProcessing(false);
+      navigate("/orders")
     } catch (error) {
-      
+      console.log(error);
+      setProcessing(false);
     }
-
-
-  }
+  };
 
   return (
     <LayOut>
@@ -94,19 +110,29 @@ e?.error?.message ? setcardError(e?.error?.message):setcardError("")
               <div className={classes.payment__details}>
                 <form onSubmit={handlePayment} action="">
                   {/* error */}
-                  {cardError && <small style={{color:"red"}}>{cardError}</small>}
+                  {cardError && (
+                    <small style={{ color: "red" }}>{cardError}</small>
+                  )}
                   {/* card element */}
-                  <CardElement onChange={handlechange}/>
+                  <CardElement onChange={handlechange} />
                   {/* price */}
                   <div className={classes.payment__price}>
                     <div>
-                      <span style={{display:"flex",gap:"10px"}}>
-                      <p>Total Order |</p>   <CurrencyFormat amount={total}/>
+                      <span style={{ display: "flex", gap: "10px" }}>
+                        <p>Total Order |</p> <CurrencyFormat amount={total} />
                       </span>
                     </div>
-                    <button type="submit">Pay Now</button>
+                    <button type="submit">
+                      {Processing ? (
+                        <div className={classes.loading}>
+                          <ClipLoader color="gray" size={12} />
+                          <p>Please wait...</p>
+                        </div>
+                      ) : (
+                        "Pay Now"
+                      )}
+                    </button>
                   </div>
-
                 </form>
               </div>
             </div>

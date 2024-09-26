@@ -15,9 +15,7 @@
 .flex h3{
     min-width: 300px;
 }
-.flex img {
-    /* height: 80px !important; */
-}
+
 .flex div {
     height: auto !important;
 }
@@ -47,6 +45,13 @@
 }
 .payment__price button:hover{
     background-color: var(--secondary-color);
+}
+.loading{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+    color: rgb(52, 52,52);
 }
 
 @media screen and (max-width:768px) {

@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
 import classes from "./SignUp.module.css";
 import LayOut from "../../Components/LayOut/LayOut";
-import { Link ,useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { auth } from "../../Utility/firebase";
 import { ClipLoader } from "react-spinners";
 import {
@@ -19,7 +19,9 @@ function Auth() {
     signIn: false,
   });
   const [Error, setError] = useState("");
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const navStateData = useLocation();
+  console.log(navStateData);
   const [{ user }, dispatch] = useContext(DataContext);
   console.log(user);
   const authHandler = async (e) => {
@@ -34,7 +36,7 @@ function Auth() {
             user: userInfo.user,
           });
           setLoading({ ...Loading, signIn: false });
-          navigate("/")
+          navigate(navStateData?.state?.redirect || "/");
         })
         .catch((err) => {
           setLoading({ ...Loading, signIn: false });
@@ -49,7 +51,7 @@ function Auth() {
             user: userInfo.user,
           });
           setLoading({ ...Loading, signUp: false });
-          navigate("/")
+          navigate(navStateData?.state?.redirect || "/");
         })
         .catch((err) => {
           setLoading({ ...Loading, signUp: false });
@@ -60,7 +62,7 @@ function Auth() {
   return (
     <section className={classes.login}>
       {/* logo */}
-      <Link to='/'>
+      <Link to="/">
         <img
           src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg"
           alt=""
@@ -69,6 +71,18 @@ function Auth() {
       {/* form */}
       <div className={classes.login__container}>
         <h1>Sign In</h1>
+        {navStateData?.state?.msg && (
+          <small
+            style={{
+              padding: "5px",
+              textAlign: "center",
+              color: "red",
+              fontWeight: "bold",
+            }}
+          >
+            {navStateData?.state?.msg}
+          </small>
+        )}
         <form action="">
           <div>
             <label htmlFor="email">Email</label>
